@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="header(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | Campus Event System'">Campus Event Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <nav th:fragment="navbar(activeTab)" class="navbar">
+        <div class="container nav-container">
+            <a th:href="@{/}" class="nav-brand">
+                <span class="brand-badge">🎓</span>
+                <span class="brand-text">Campus<span>Events</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a th:href="@{/}" class="nav-link" th:classappend="${activeTab == 'home'} ? 'active' : ''">Home</a></li>
+                <li><a th:href="@{/events}" class="nav-link" th:classappend="${activeTab == 'events'} ? 'active' : ''">Browse Events</a></li>
+                <li th:if="${isStudent}">
+                    <a th:href="@{/my-registrations}" class="nav-link" th:classappend="${activeTab == 'my-registrations'} ? 'active' : ''">My Registrations</a>
+                </li>
+                <li th:if="${isAdmin}">
+                    <a th:href="@{/admin/dashboard}" class="nav-link" th:classappend="${activeTab == 'admin-dashboard'} ? 'active' : ''">Admin Dashboard</a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <!-- If Authenticated -->
+                <div th:if="${currentUser != null}" class="user-pill">
+                    <div class="user-avatar" th:text="${#strings.substring(currentUser.fullName, 0, 1)}">U</div>
+                    <span th:text="${currentUser.fullName}" style="font-weight: 600;">User</span>
+                    <span th:if="${isAdmin}" class="badge-role badge-admin">ADMIN</span>
+                    <span th:if="${isStudent}" class="badge-role badge-student">STUDENT</span>
+                    <a th:href="@{/logout}" class="btn btn-sm btn-secondary" style="margin-left: 0.35rem;" title="Sign out">Logout</a>
+                </div>
+
+                <!-- If Guest -->
+                <div th:if="${currentUser == null}" style="display: flex; gap: 0.75rem;">
+                    <a th:href="@{/login}" class="btn btn-sm btn-secondary">Sign In</a>
+                    <a th:href="@{/register}" class="btn btn-sm btn-primary">Student Register</a>
+                </div>
+
+                <button id="mobileMenuToggle" class="btn btn-sm btn-secondary" style="display: none;" aria-label="Toggle menu">☰</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Alert Banners -->
+    <div th:fragment="alerts" class="container" style="margin-top: 1.5rem;">
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span style="font-size: 1.2rem;">✓</span>
+            <span th:text="${successMessage}">Operation successful!</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span style="font-size: 1.2rem;">⚠️</span>
+            <span th:text="${errorMessage}">An error occurred.</span>
+        </div>
+    </div>
+
+    <!-- Global Footer -->
+    <footer th:fragment="footer" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="nav-brand" style="margin-bottom: 1rem;">
+                        <span class="brand-badge">🎓</span>
+                        <span class="brand-text">Campus<span>Events</span></span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 320px; line-height: 1.6;">
+                        The central digital hub for college hackathons, technical workshops, cultural celebrations, academic seminars, and athletic championships.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 1rem; font-size: 1rem;">Quick Navigation</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li><a th:href="@{/}" style="color: var(--text-muted);">Campus Homepage</a></li>
+                        <li><a th:href="@{/events}" style="color: var(--text-muted);">Explore All Events</a></li>
+                        <li><a th:href="@{/register}" style="color: var(--text-muted);">Student Registration</a></li>
+                        <li><a th:href="@{/login}" style="color: var(--text-muted);">Campus Sign In</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 1rem; font-size: 1rem;">College Helpdesk</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6;">
+                        Dean of Student Affairs<br>
+                        Student Activity Center, Room 101<br>
+                        Email: <a href="mailto:events@campus.edu">events@campus.edu</a><br>
+                        Phone: (555) 019-2834
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Campus Event Management System. Developed with Spring Boot &amp; SQLite.</p>
+            </div>
+        </div>
+        <script th:src="@{/js/main.js}"></script>
+    </footer>
+
+</body>
+</html>

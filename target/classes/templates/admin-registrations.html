@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Participant Roster')}"></head>
+<body>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/layout :: navbar('admin-dashboard')}"></div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <a th:href="@{/admin/dashboard}" class="btn btn-sm btn-secondary">
+                    &larr; Back to Admin Dashboard
+                </a>
+                <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-sm btn-outline">
+                    View Public Event Page &rarr;
+                </a>
+            </div>
+
+            <!-- Event Overview Header Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2rem; backdrop-filter: var(--glass-blur);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+                    <div>
+                        <div style="display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem;">
+                            <span class="category-tag"
+                                  th:classappend="'tag-' + ${#strings.toLowerCase(event.category)}"
+                                  th:text="${event.category}">Category</span>
+                            <span class="status-badge"
+                                  th:classappend="'status-' + ${#strings.toLowerCase(event.status)}"
+                                  th:text="${event.status}">PUBLISHED</span>
+                        </div>
+                        <h2 th:text="${event.title}" style="font-size: 2rem; margin-bottom: 0.4rem;">Event Title</h2>
+                        <div style="color: var(--text-muted); font-size: 0.92rem;">
+                            📅 <span th:text="${#temporals.format(event.eventDate, 'EEEE, MMM dd, yyyy')}">Date</span> •
+                            ⏰ <span th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</span> •
+                            📍 <span th:text="${event.venue}">Venue</span> •
+                            👥 <span th:text="${event.organizer}">Organizer</span>
+                        </div>
+                    </div>
+
+                    <!-- Seating Summary Pill -->
+                    <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1rem 1.5rem; text-align: center; min-width: 200px;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Active Registrations</div>
+                        <div style="font-size: 2rem; font-weight: 800; font-family: var(--font-heading); color: var(--text-white);"
+                             th:text="${activeCount} + ' / ' + ${event.capacity}">
+                            15 / 100
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--primary-light); margin-top: 0.2rem;"
+                             th:text="${availableSeats} + ' seats remaining'">
+                            85 seats remaining
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participant Table -->
+            <div class="section-header">
+                <div>
+                    <h3 class="section-title" style="font-size: 1.6rem;">Registered Student Roster</h3>
+                    <p class="section-subtitle">Official verified attendees for event entry and attendance verification</p>
+                </div>
+            </div>
+
+            <div class="table-card" th:if="${not #lists.isEmpty(registrations)}">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Email Address</th>
+                                <th>Department</th>
+                                <th>Academic Year</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="reg, iter : ${registrations}">
+                                <td style="color: var(--text-muted);" th:text="${iter.count}">1</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.85rem;"
+                                             th:text="${#strings.substring(reg.student.fullName, 0, 1)}">S</div>
+                                        <div style="font-weight: 600; color: var(--text-white);"
+                                             th:text="${reg.student.fullName}">Sarah Jenkins</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a th:href="'mailto:' + ${reg.student.email}" th:text="${reg.student.email}" style="color: var(--primary-light);">
+                                        student@campus.edu
+                                    </a>
+                                </td>
+                                <td th:text="${reg.student.department}">Computer Science</td>
+                                <td th:text="${reg.student.academicYear}">3rd Year</td>
+                                <td style="font-size: 0.85rem; color: var(--text-muted);"
+                                    th:text="${#temporals.format(reg.registeredAt, 'MMM dd, yyyy HH:mm')}">Date</td>
+                                <td>
+                                    <span th:if="${reg.isRegistered()}" class="status-badge status-published">
+                                        ✓ REGISTERED
+                                    </span>
+                                    <span th:if="${reg.isCancelled()}" class="status-badge status-cancelled">
+                                        CANCELLED
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(registrations)}">
+                <div class="empty-icon">👥</div>
+                <h3 class="empty-title">No Registered Participants Yet</h3>
+                <p class="empty-desc">No students have signed up for this event yet. Once published, students will appear in this roster upon booking.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

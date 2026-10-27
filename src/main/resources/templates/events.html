@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Browse Campus Events')}"></head>
+<body>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/layout :: navbar('events')}"></div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Header & Search Controls -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; backdrop-filter: var(--glass-blur);">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2>Explore Campus Events</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Find upcoming hackathons, tech workshops, guest seminars, and athletic championships</p>
+                </div>
+
+                <!-- Search and Filter Form -->
+                <form th:action="@{/events}" method="get" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 260px;">
+                        <input type="text" name="keyword" th:value="${keyword}"
+                               class="input-control" placeholder="Search by event title, organizer, or campus venue...">
+                    </div>
+
+                    <div style="flex: 1; min-width: 180px;">
+                        <select name="category" class="input-control">
+                            <option value="ALL" th:selected="${selectedCategory == 'ALL'}">All Categories</option>
+                            <option value="Technical" th:selected="${selectedCategory == 'Technical'}">Technical</option>
+                            <option value="Hackathon" th:selected="${selectedCategory == 'Hackathon'}">Hackathon</option>
+                            <option value="Workshop" th:selected="${selectedCategory == 'Workshop'}">Workshop</option>
+                            <option value="Seminar" th:selected="${selectedCategory == 'Seminar'}">Seminar</option>
+                            <option value="Cultural" th:selected="${selectedCategory == 'Cultural'}">Cultural</option>
+                            <option value="Sports" th:selected="${selectedCategory == 'Sports'}">Sports</option>
+                            <option value="Other" th:selected="${selectedCategory == 'Other'}">Other</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="submit" class="btn btn-primary">
+                            <span>🔍 Search</span>
+                        </button>
+                        <a th:href="@{/events}" class="btn btn-secondary" title="Reset Filters">
+                            Reset
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Category Fast Chips -->
+                <div class="category-filter-bar" style="margin-top: 1.25rem; padding-bottom: 0;">
+                    <a th:href="@{/events(category='ALL', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'ALL'} ? 'active' : ''">All</a>
+                    <a th:href="@{/events(category='Technical', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'Technical'} ? 'active' : ''">💻 Technical</a>
+                    <a th:href="@{/events(category='Hackathon', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'Hackathon'} ? 'active' : ''">⚡ Hackathon</a>
+                    <a th:href="@{/events(category='Workshop', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'Workshop'} ? 'active' : ''">🛠️ Workshop</a>
+                    <a th:href="@{/events(category='Seminar', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'Seminar'} ? 'active' : ''">🎙️ Seminar</a>
+                    <a th:href="@{/events(category='Cultural', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'Cultural'} ? 'active' : ''">🎨 Cultural</a>
+                    <a th:href="@{/events(category='Sports', keyword=${keyword})}"
+                       class="filter-chip" th:classappend="${selectedCategory == 'Sports'} ? 'active' : ''">⚽ Sports</a>
+                </div>
+            </div>
+
+            <!-- Results Meta Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 0.95rem; color: var(--text-muted);">
+                    Showing <strong style="color: var(--text-white);" th:text="${totalCount}">0</strong> published events
+                    <span th:if="${selectedCategory != 'ALL' and selectedCategory != null}" th:text="' in ' + ${selectedCategory}"></span>
+                    <span th:if="${keyword != null and !#strings.isEmpty(keyword)}" th:text="' matching \'' + ${keyword} + '\''"></span>
+                </div>
+                <div th:if="${isAdmin}">
+                    <a th:href="@{/admin/events/new}" class="btn btn-primary btn-sm">+ Post New Event</a>
+                </div>
+            </div>
+
+            <!-- Event Cards Grid -->
+            <div class="events-grid" th:if="${not #lists.isEmpty(events)}">
+                <div class="event-card" th:each="item : ${events}">
+                    <!-- Card Banner -->
+                    <div class="card-banner">
+                        <img th:if="${item.event.posterUrl != null and !#strings.isEmpty(item.event.posterUrl)}"
+                             th:src="${item.event.posterUrl}"
+                             th:alt="${item.event.title}">
+                        <div th:unless="${item.event.posterUrl != null and !#strings.isEmpty(item.event.posterUrl)}"
+                             style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e293b, #0f172a); font-size: 3rem;">
+                            🎓
+                        </div>
+                        <div class="card-badges">
+                            <span class="category-tag"
+                                  th:classappend="'tag-' + ${#strings.toLowerCase(item.event.category)}"
+                                  th:text="${item.event.category}">Category</span>
+                            <span class="status-badge"
+                                  th:classappend="'status-' + ${#strings.toLowerCase(item.event.status)}"
+                                  th:text="${item.event.status}">PUBLISHED</span>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-date-meta">
+                            <span>📅</span>
+                            <span th:text="${#temporals.format(item.event.eventDate, 'EEE, MMM dd, yyyy')}">Date</span>
+                            <span>•</span>
+                            <span th:text="${item.event.startTime} + ' - ' + ${item.event.endTime}">Time</span>
+                        </div>
+
+                        <h3 class="card-title">
+                            <a th:href="@{/events/{id}(id=${item.event.id})}" th:text="${item.event.title}">Event Title</a>
+                        </h3>
+
+                        <p class="card-desc" th:text="${item.event.description}">Event short description goes here...</p>
+
+                        <div class="card-meta-list">
+                            <div class="meta-item">
+                                <span class="icon">📍</span>
+                                <span th:text="${item.event.venue}">Main Auditorium</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="icon">👥</span>
+                                <span th:text="'Organized by: ' + ${item.event.organizer}">Organizer</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="icon">⏳</span>
+                                <span th:text="'Deadline: ' + ${#temporals.format(item.event.registrationDeadline, 'MMM dd, yyyy')}">Deadline</span>
+                            </div>
+                        </div>
+
+                        <!-- Capacity Bar -->
+                        <div class="capacity-box">
+                            <div class="capacity-labels">
+                                <span>Seats Available</span>
+                                <span th:text="${item.availableSeats} + ' / ' + ${item.event.capacity} + ' left'">40 / 100 left</span>
+                            </div>
+                            <div class="capacity-bar">
+                                <div class="capacity-fill"
+                                     th:classappend="${item.percentageFilled > 80} ? 'high' : ''"
+                                     th:style="'width: ' + ${item.percentageFilled} + '%;'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Card Action Footer -->
+                        <div class="card-footer">
+                            <a th:href="@{/events/{id}(id=${item.event.id})}" class="btn btn-secondary btn-sm" style="flex: 1;">
+                                View Details
+                            </a>
+
+                            <!-- If Student and already registered -->
+                            <span th:if="${item.registeredByCurrentUser}" class="btn btn-success btn-sm" style="cursor: default;">
+                                ✓ Registered
+                            </span>
+
+                            <!-- If Student and can register -->
+                            <form th:if="${isStudent and item.registrationAllowed}"
+                                  th:action="@{/events/{id}/register(id=${item.event.id})}"
+                                  method="post" style="margin: 0;">
+                                <button type="submit" class="btn btn-primary btn-sm">Register</button>
+                            </form>
+
+                            <!-- If Guest -->
+                            <a th:if="${currentUser == null and item.event.isRegistrationAllowed(item.registeredCount)}"
+                               th:href="@{/login}" class="btn btn-primary btn-sm">
+                                Register
+                            </a>
+
+                            <!-- If Full -->
+                            <span th:if="${item.availableSeats == 0}" class="btn btn-sm btn-secondary" style="opacity: 0.6; cursor: not-allowed;">
+                                Full
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(events)}">
+                <div class="empty-icon">🔍</div>
+                <h3 class="empty-title">No Matching Events Found</h3>
+                <p class="empty-desc">We couldn't find any campus events matching your current filters. Try searching for a different keyword or category.</p>
+                <a th:href="@{/events}" class="btn btn-outline">Clear All Search Filters</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

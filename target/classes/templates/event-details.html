@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header(${event.title})}"></head>
+<body>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/layout :: navbar('events')}"></div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Back Navigation Link -->
+            <div style="margin-bottom: 1.5rem;">
+                <a th:href="@{/events}" class="btn btn-sm btn-secondary">
+                    &larr; Back to Events
+                </a>
+            </div>
+
+            <!-- Event Hero Banner -->
+            <div class="event-details-hero">
+                <img th:if="${event.posterUrl != null and !#strings.isEmpty(event.posterUrl)}"
+                     th:src="${event.posterUrl}"
+                     th:alt="${event.title}">
+                <div th:unless="${event.posterUrl != null and !#strings.isEmpty(event.posterUrl)}"
+                     style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e293b, #0f172a); font-size: 5rem;">
+                    🎓
+                </div>
+
+                <div class="event-details-overlay">
+                    <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <span class="category-tag"
+                              th:classappend="'tag-' + ${#strings.toLowerCase(event.category)}"
+                              th:text="${event.category}">Category</span>
+                        <span class="status-badge"
+                              th:classappend="'status-' + ${#strings.toLowerCase(event.status)}"
+                              th:text="${event.status}">PUBLISHED</span>
+                    </div>
+                    <h1 th:text="${event.title}" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Event Title</h1>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; color: var(--text-main); font-size: 0.95rem;">
+                        <span>📅 <strong th:text="${#temporals.format(event.eventDate, 'EEEE, MMMM dd, yyyy')}">Date</strong></span>
+                        <span>⏰ <strong th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</strong></span>
+                        <span>📍 <strong th:text="${event.venue}">Venue</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Content Grid -->
+            <div class="details-grid">
+                <!-- Left: Full Description & Event Information -->
+                <div>
+                    <div class="details-panel" style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+                            About This Event
+                        </h3>
+                        <div style="color: var(--text-main); font-size: 1.05rem; line-height: 1.8; white-space: pre-line;"
+                             th:text="${event.description}">
+                            Description text...
+                        </div>
+                    </div>
+
+                    <div class="details-panel">
+                        <h3 style="margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+                            Event Logistics &amp; Guidelines
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Host / Organizer</div>
+                                <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-white); margin-top: 0.25rem;" th:text="${event.organizer}">Organizer</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Campus Location</div>
+                                <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-white); margin-top: 0.25rem;" th:text="${event.venue}">Venue</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Registration Deadline</div>
+                                <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-white); margin-top: 0.25rem;" th:text="${#temporals.format(event.registrationDeadline, 'MMMM dd, yyyy')}">Deadline</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Audience Eligibility</div>
+                                <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-white); margin-top: 0.25rem;">All Enrolled Students</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Registration Action Card -->
+                <div>
+                    <div class="details-panel" style="position: sticky; top: 100px;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1.25rem; text-align: center;">Registration Desk</h3>
+
+                        <!-- Seating Capacity Widget -->
+                        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Available Seats</span>
+                                <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-white);"
+                                      th:text="${eventDto.availableSeats} + ' / ' + ${event.capacity}">
+                                    45 / 100
+                                </span>
+                            </div>
+                            <div class="capacity-bar" style="height: 8px;">
+                                <div class="capacity-fill"
+                                     th:classappend="${eventDto.percentageFilled > 80} ? 'high' : ''"
+                                     th:style="'width: ' + ${eventDto.percentageFilled} + '%;'"></div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; text-align: right;"
+                                 th:text="${eventDto.percentageFilled} + '% capacity filled'">
+                                55% filled
+                            </div>
+                        </div>
+
+                        <!-- Registration Status Logic -->
+
+                        <!-- 1. If Current User is already registered -->
+                        <div th:if="${eventDto.registeredByCurrentUser}"
+                             style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 1.25rem; text-align: center; margin-bottom: 1.25rem;">
+                            <div style="font-size: 2rem; margin-bottom: 0.25rem;">🎉</div>
+                            <div style="font-weight: 700; color: #34d399; margin-bottom: 0.35rem;">You are Registered!</div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                Your seat has been reserved. You can review your admission badge or cancel registration in your dashboard.
+                            </p>
+                            <a th:href="@{/my-registrations}" class="btn btn-success btn-sm" style="width: 100%;">
+                                View My Registrations &rarr;
+                            </a>
+                        </div>
+
+                        <!-- 2. If student and can register -->
+                        <div th:if="${isStudent and eventDto.registrationAllowed}">
+                            <form th:action="@{/events/{id}/register(id=${event.id})}" method="post">
+                                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem; font-size: 1.05rem;">
+                                    Confirm Event Registration 🎟️
+                                </button>
+                            </form>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 0.75rem;">
+                                Instant seat confirmation. No registration fees.
+                            </p>
+                        </div>
+
+                        <!-- 3. If Guest (Not Logged in) and registration is generally open -->
+                        <div th:if="${currentUser == null and event.isRegistrationAllowed(eventDto.registeredCount)}">
+                            <a th:href="@{/login}" class="btn btn-primary" style="width: 100%; padding: 0.9rem; font-size: 1.05rem;">
+                                Sign In to Register &rarr;
+                            </a>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 0.75rem;">
+                                Enrolled student? <a th:href="@{/register}">Create an account here</a>
+                            </p>
+                        </div>
+
+                        <!-- 4. Rejection Notices -->
+                        <!-- If Event is Full -->
+                        <div th:if="${eventDto.availableSeats == 0 and !eventDto.registeredByCurrentUser}"
+                             class="alert alert-danger" style="margin-top: 1rem; text-align: center; justify-content: center;">
+                            <span>⚠️ Capacity Reached - Registrations are Closed.</span>
+                        </div>
+
+                        <!-- If Deadline has passed -->
+                        <div th:if="${event.isDeadlinePassed() and !eventDto.registeredByCurrentUser}"
+                             class="alert alert-danger" style="margin-top: 1rem; text-align: center; justify-content: center;">
+                            <span>⏳ The registration deadline has passed.</span>
+                        </div>
+
+                        <!-- If Cancelled -->
+                        <div th:if="${event.isCancelled()}"
+                             class="alert alert-danger" style="margin-top: 1rem; text-align: center; justify-content: center;">
+                            <span>❌ This event was cancelled by the organizers.</span>
+                        </div>
+
+                        <!-- If Past Event -->
+                        <div th:if="${event.isPastEvent()}"
+                             class="alert alert-info" style="margin-top: 1rem; text-align: center; justify-content: center;">
+                            <span>🏁 This event has already taken place.</span>
+                        </div>
+
+                        <!-- Admin Shortcut Panel -->
+                        <div th:if="${isAdmin}" style="margin-top: 1.75rem; border-top: 1px dashed var(--border-subtle); padding-top: 1.25rem;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-rose); text-transform: uppercase; margin-bottom: 0.75rem;">
+                                🛡️ Admin Controls
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <a th:href="@{/admin/events/{id}/registrations(id=${event.id})}" class="btn btn-secondary btn-sm">
+                                    📋 View Participant Roster (<span th:text="${eventDto.registeredCount}">0</span>)
+                                </a>
+                                <a th:href="@{/admin/events/{id}/edit(id=${event.id})}" class="btn btn-outline btn-sm">
+                                    ✏️ Edit Event Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

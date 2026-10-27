@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Error')}"></head>
+<body>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/layout :: navbar('error')}"></div>
+
+    <main class="main-content">
+        <div class="container" style="text-align: center; padding: 4rem 1rem;">
+            <div class="form-card" style="max-width: 580px; margin: 0 auto; padding: 3rem 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">
+                    <span th:if="${statusCode == 404}">🔍</span>
+                    <span th:if="${statusCode == 403}">🛡️</span>
+                    <span th:if="${statusCode == 500 or statusCode == null}">⚠️</span>
+                </div>
+
+                <div style="font-size: 1.25rem; font-weight: 800; font-family: var(--font-heading); color: var(--primary-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;"
+                     th:text="'HTTP ' + ${statusCode}">
+                    HTTP 404
+                </div>
+
+                <h2 style="font-size: 2rem; margin-bottom: 1rem;" th:text="${errorTitle}">
+                    Resource Not Found
+                </h2>
+
+                <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;"
+                   th:text="${errorDescription}">
+                    The requested page or campus resource could not be found.
+                </p>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a th:href="@{/}" class="btn btn-primary">
+                        Return to Homepage
+                    </a>
+                    <a th:href="@{/events}" class="btn btn-secondary">
+                        Browse Campus Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

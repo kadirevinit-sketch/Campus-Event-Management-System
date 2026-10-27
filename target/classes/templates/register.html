@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Student Registration')}"></head>
+<body>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/layout :: navbar('register')}"></div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="form-card" style="max-width: 680px;">
+                <div class="form-header">
+                    <span class="brand-badge" style="width: 50px; height: 50px; font-size: 1.5rem; margin: 0 auto 1rem;">📝</span>
+                    <h2>Student Registration</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Join our campus community to participate in hackathons, workshops, and college fests</p>
+                </div>
+
+                <form th:action="@{/register}" th:object="${registerDto}" method="post">
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" th:field="*{fullName}"
+                               class="input-control" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''"
+                               placeholder="e.g. Alex Morgan" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Campus Email Address</label>
+                        <input type="email" id="email" th:field="*{email}"
+                               class="input-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                               placeholder="e.g. alex.morgan@campus.edu" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Department -->
+                        <div class="form-group">
+                            <label for="department">Academic Department</label>
+                            <select id="department" th:field="*{department}"
+                                    class="input-control" th:classappend="${#fields.hasErrors('department')} ? 'is-invalid' : ''" required>
+                                <option value="">-- Select Department --</option>
+                                <option value="Computer Science & Engineering">Computer Science &amp; Engineering</option>
+                                <option value="Artificial Intelligence & Data Science">AI &amp; Data Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics & Communication">Electronics &amp; Communication</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                                <option value="School of Management & Business">School of Management</option>
+                                <option value="Arts, Humanities & Sciences">Arts &amp; Sciences</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
+                        </div>
+
+                        <!-- Academic Year -->
+                        <div class="form-group">
+                            <label for="academicYear">Academic Year</label>
+                            <select id="academicYear" th:field="*{academicYear}"
+                                    class="input-control" th:classappend="${#fields.hasErrors('academicYear')} ? 'is-invalid' : ''" required>
+                                <option value="">-- Select Year --</option>
+                                <option value="1st Year (Freshman)">1st Year (Freshman)</option>
+                                <option value="2nd Year (Sophomore)">2nd Year (Sophomore)</option>
+                                <option value="3rd Year (Junior)">3rd Year (Junior)</option>
+                                <option value="Final Year (Senior)">Final Year (Senior)</option>
+                                <option value="Postgraduate / Master's">Postgraduate / Master's</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('academicYear')}" th:errors="*{academicYear}"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" th:field="*{password}"
+                                   class="input-control" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                                   placeholder="At least 6 characters" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" th:field="*{confirmPassword}"
+                                   class="input-control" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''"
+                                   placeholder="Re-enter password" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; margin-top: 1rem;">
+                        Create Student Account &rarr;
+                    </button>
+                </form>
+
+                <div style="margin-top: 1.75rem; text-align: center; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        Already registered?
+                        <a th:href="@{/login}" style="color: var(--primary-light); font-weight: 600;">Sign in here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>
